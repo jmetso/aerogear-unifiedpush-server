@@ -31,6 +31,10 @@ fi
 if [ !  -z "${KEYCLOAK_SERVICE_HOST}" ]; then
   echo "Enabling KeyCloak"
   /opt/jboss/wildfly/bin/jboss-cli.sh --file=/opt/jboss/wildfly/bin/adapter-elytron-install-offline.cli --properties=$JBOSS_HOME/env.properties
+  if [[ -z "${KEYCLOAK_SERVICE_PROTOCOL}" ]]; then
+    "Defaulting to https as Keycloak connection protocol"
+    export KEYCLOAK_SERVICE_PROTOCOL=https
+  fi
 else
   echo "No security"
   rm -f /opt/jboss/wildfly/standalone/deployments/ROOT/WEB-INF/keycloak.json
@@ -43,9 +47,7 @@ rm -rf /opt/jboss/wildfly/standalone/deployments/ROOT
 cd -
 
 if [ !  -z "${KEYCLOAK_SERVICE_HOST}" ]; then
-  /opt/jboss/wildfly/bin/standalone.sh -Dups.realm.name=aerogear -Dups.auth.server.url=http://${KEYCLOAK_SERVICE_HOST}:${KEYCLOAK_SERVICE_PORT}/auth -b 0.0.0.0
+  /opt/jboss/wildfly/bin/standalone.sh -Dups.realm.name=aerogear -Dups.auth.server.url=${KEYCLOAK_SERVICE_PROTOCOL}://${KEYCLOAK_SERVICE_HOST}:${KEYCLOAK_SERVICE_PORT}/auth -b 0.0.0.0
 else
   /opt/jboss/wildfly/bin/standalone.sh -b 0.0.0.0
 fi
-
-
